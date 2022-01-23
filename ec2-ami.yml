@@ -1,0 +1,16 @@
+---  # create AMI from an instance using ec2_ami module
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+      - keys.yml
+  tasks:
+      - name: Create new AMI
+      ec2_ami:
+        aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+        aws_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
+        ec2_region: "{{ AWS_REGION }}"
+        instance_id: i-008f8449573953a32
+        name: MyNewAMI
+        #wait: yes # can be used you want the module to wait
+        state: present #state= present to create an AMI and then will have to provide an instance id as a base image
+                       #state= absent to delete an AMI and then will have to provide an image id to be deleted

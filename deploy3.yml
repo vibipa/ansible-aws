@@ -1,0 +1,36 @@
+--- #Create an AMI from an EC2 instance
+- hosts: node1
+  become: yes
+  tasks:
+    - name: Update packages
+      yum:
+        name: "*"   #Update all yum packag
+        state: latest
+    - name: Update image.txt
+      lineinfile:
+        path: /home/ansible/image.txt
+        line: "Image updated {{ ansible_date_time.date }}"
+    - name: Gather facts
+      ec2_metadata_facts:
+
+- hosts: localhost
+  tasks:
+    - name: Stop node1
+      local_action: ec2  #Local action will use envrionment variable to authenticate
+      args:
+        region: us-east-1
+        state: stopped
+        instance_id: "{{ hostvars['node1'].ansible_ec2_instance_id }}"
+        wait: yes
+    - name: Create AMI
+      local_action: ec2_ami
+      args:
+        state: present
+        instance_id: "{{ hostvars['node1'].ansible_ec2_instance_id }}"
+        name: UpdatedImage
+      register: ami_output
+    - name: Write AMI info to file
+      lineinfile:
+        create: yes
+        path: /home/ansible/ami.txt
+        line: "{{ ami_output.image_id }}"

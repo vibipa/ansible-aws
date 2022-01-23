@@ -1,0 +1,27 @@
+---  #Create tags
+ - hosts: localhost
+    gather_facts: no
+    vars_files:
+      - keys.yml
+    tasks:
+       - name: Gather tags
+         ec2_tag:
+             aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+             aws_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
+             ec2_region: "{{ AWS_REGION }}"
+             state: list #collect tags
+             resource: i-008f8449573953a32
+          register: tags
+       - name: Display tags
+         debug:
+           var: tags.tags
+       - name: Add tags to resource
+         ec2_tag:
+             aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+             aws_secret_key: "{{ AWS_SECRET_ACCESS_KEY }}"
+             ec2_region: "{{ AWS_REGION }}"
+             resource: snap-008f8449573953a32
+             tags:
+               system: erp
+               version: 1.2
+             state: present #create tags
